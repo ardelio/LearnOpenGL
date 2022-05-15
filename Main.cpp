@@ -1,24 +1,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <fstream>
+#include <sstream>
 
+#include "FileUtils.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "Shape.h"
 #include "Window.h"
 
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"    FragColor = vec4(1.0f, .5f, .2f, 1.0f);\n"
-"}\0";
+const std::string vertexShaderSource = readFileIntoString("./shaders/shader.vert");
+const std::string fragmentShaderSource = readFileIntoString("./shaders/shader.frag");
 
 int main()
 {
@@ -34,8 +26,8 @@ int main()
     return EXIT_FAILURE;
   };
 
-  Shader vertexShader(GL_VERTEX_SHADER, vertexShaderSource);
-  Shader fragmentShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
+  Shader vertexShader(GL_VERTEX_SHADER, vertexShaderSource.c_str());
+  Shader fragmentShader(GL_FRAGMENT_SHADER, fragmentShaderSource.c_str());
 
   ShaderProgram program;
   program.addShader(&vertexShader);
@@ -58,9 +50,16 @@ int main()
       1, 2, 3   // second triangle
     });
 
-  window.render([&program, &shape]() {
+  Shape secondShape({
+    -.5f, .5f, .0f,
+    -.25f, .5f, .0f,
+    .0f, .25f, .0f,
+    });
+
+  window.render([&program, &shape, &secondShape]() {
     program.use();
     shape.draw();
+    secondShape.draw();
     });
 
   shape.destroy();
